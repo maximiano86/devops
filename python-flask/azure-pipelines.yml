@@ -15,6 +15,12 @@ stages:
 
     steps:
     - script: |
+        python --version
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.9' 
+    - script: |
+        python --version
         cd python-flask
         set -e
         pip3 install -r src/requirements.txt
