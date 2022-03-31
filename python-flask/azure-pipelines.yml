@@ -31,87 +31,87 @@ stages:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
         reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
       
-- stage: 'Build'
-  displayName: 'Build and Push Image'
-  dependsOn: 'Testing'
-  jobs:
-  - job: 'Build_and_Push_Image'
-    pool:
-      vmImage: 'ubuntu-latest'
+# - stage: 'Build'
+#   displayName: 'Build and Push Image'
+#   dependsOn: 'Testing'
+#   jobs:
+#   - job: 'Build_and_Push_Image'
+#     pool:
+#       vmImage: 'ubuntu-latest'
 
-    steps:
-    - task: Docker@2
-      displayName: 'docker build & docker push'
-      inputs:
-        command: buildAndPush
-        buildContext: $(Build.Repository.LocalPath)
-        repository: 'maximiano86/flask'
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        containerRegistry: 'docker registry'
-        tags: |
-          $(tag)
+#     steps:
+#     - task: Docker@2
+#       displayName: 'docker build & docker push'
+#       inputs:
+#         command: buildAndPush
+#         buildContext: $(Build.Repository.LocalPath)
+#         repository: 'maximiano86/flask'
+#         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+#         containerRegistry: 'docker registry'
+#         tags: |
+#           $(tag)
 
-    - publish: './manifests'
-      artifact: manifests
+#     - publish: './manifests'
+#       artifact: manifests
 
-- stage: 'Create_Infra'
-  displayName: 'Infra as Code'
-  dependsOn: 'Build'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
-  jobs:
-  - job: IaC
-    pool:
-      vmImage: 'ubuntu-18.04'
-    variables:
-    - group: terraform-variables
-    steps:
-    - script: |
-        set -e
-        cd IaC
-        terraform init 
-        terraform plan
-      name: 'RunTerraform'
-      displayName: 'Run Terraform'
-      env:
-        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-        ARM_TENANT_ID: $(ARM_TENANT_ID)
-        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+# - stage: 'Create_Infra'
+#   displayName: 'Infra as Code'
+#   dependsOn: 'Build'
+#   condition: |
+#     and
+#     (
+#       succeeded(),
+#       eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+#     )
+#   jobs:
+#   - job: IaC
+#     pool:
+#       vmImage: 'ubuntu-18.04'
+#     variables:
+#     - group: terraform-variables
+#     steps:
+#     - script: |
+#         set -e
+#         cd IaC
+#         terraform init 
+#         terraform plan
+#       name: 'RunTerraform'
+#       displayName: 'Run Terraform'
+#       env:
+#         ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+#         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+#         ARM_TENANT_ID: $(ARM_TENANT_ID)
+#         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
 
-- stage: 'Deploy_Dev'
-  displayName: 'Deploy Dev Environment'
-  dependsOn: 'Create_Infra'
-  condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
+# - stage: 'Deploy_Dev'
+#   displayName: 'Deploy Dev Environment'
+#   dependsOn: 'Create_Infra'
+#   condition: |
+#     and
+#     (
+#       succeeded(),
+#       eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
+#     )
 
-  jobs:
-    - deployment: 'Deploy'
-      pool:
-        vmImage: 'ubuntu-latest'
-      environment: 'ibmcloud_cluster'
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-              - download: current
-                artifact: manifests
-              - task: KubernetesManifest@0
-                displayName: 'Deploy to Kubernetes cluster'
-                inputs:
-                  action: deploy
-                  kubernetesServiceConnection: 'ibmcloud kubernetes'
-                  namespace: 'default'
-                  manifests: |
-                    $(Pipeline.Workspace)/manifests/deployment.yml
-                  containers: |
-                    maximiano86/flask:$(tag)
+#   jobs:
+#     - deployment: 'Deploy'
+#       pool:
+#         vmImage: 'ubuntu-latest'
+#       environment: 'ibmcloud_cluster'
+#       strategy:
+#         runOnce:
+#           deploy:
+#             steps:
+#               - download: current
+#                 artifact: manifests
+#               - task: KubernetesManifest@0
+#                 displayName: 'Deploy to Kubernetes cluster'
+#                 inputs:
+#                   action: deploy
+#                   kubernetesServiceConnection: 'ibmcloud kubernetes'
+#                   namespace: 'default'
+#                   manifests: |
+#                     $(Pipeline.Workspace)/manifests/deployment.yml
+#                   containers: |
+#                     maximiano86/flask:$(tag)
