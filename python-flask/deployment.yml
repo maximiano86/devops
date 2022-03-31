@@ -1,0 +1,86 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: app-1
+spec:
+  selector:
+    matchLabels:
+      app: app-1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: app-1
+    spec:
+      containers:
+      - envFrom:
+          - configMapRef:
+              name: app-1
+        name: app-1
+        image: maximianohernandez/testing-route
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-1
+spec:
+  selector:
+    app: app-1
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-1
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    kubernetes.io/ingress.class: nginx
+    #nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    #nginx.ingress.kubernetes.io/use-regex: "true"
+    #nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-1
+            port:
+              number: 80
+
+#spec:
+#  tls:
+#  - hosts:
+#      - dev-sloan.com
+#    secretName: dev-sloan-ssl
+#  rules:
+#  - host: dev-sloan.com
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: app-1
+#            port:
+#              number: 80         
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-1
+data:
+  SAMPLE_VALUE: "THIS_IS_A_SAMPLE_VALUE"
+  SECOND_VALUE: "SECOND_VALUE"
