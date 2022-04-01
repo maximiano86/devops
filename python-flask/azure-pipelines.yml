@@ -86,7 +86,7 @@ stages:
 #         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 #         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
 
-- stage: 'Deploy_East'
+- stage: 'Deploy MultiRegion'
   displayName: 'Deploy East Environment'
   dependsOn: 'Build'
   condition: |
