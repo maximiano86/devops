@@ -100,7 +100,7 @@ stages:
     - deployment: 'Deploy_East'
       pool:
         vmImage: 'ubuntu-latest'
-      environment: 'ask-east'
+      environment: 'aks-east'
       strategy:
         runOnce:
           deploy:
@@ -111,7 +111,7 @@ stages:
                 displayName: 'Deploy to Kubernetes cluster'
                 inputs:
                   action: deploy
-                  kubernetesServiceConnection: 'ask-east'
+                  kubernetesServiceConnection: 'aks-east'
                   namespace: 'default'
                   manifests: |
                     $(Pipeline.Workspace)/manifests/deployment.yml
