@@ -68,3 +68,12 @@ spec:
 #            name: devops
 #            port:
 #              number: 80         
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devops
+data:
+  SAMPLE_VALUE: "THIS_IS_A_SAMPLE_VALUE"
+  SECOND_VALUE: "SECOND_VALUE"
