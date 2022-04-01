@@ -17,7 +17,7 @@ spec:
           - configMapRef:
               name: devops
         name: devops
-        image: maximianohernandez/devops
+        image: maximiano86/devops
         ports:
         - containerPort: 5000
 ---
