@@ -121,7 +121,7 @@ stages:
     - deployment: 'Deploy_West'
       pool:
         vmImage: 'ubuntu-latest'
-      environment: 'ask-west'
+      environment: 'aks-west'
       strategy:
         runOnce:
           deploy:
@@ -132,7 +132,7 @@ stages:
                 displayName: 'Deploy to Kubernetes cluster'
                 inputs:
                   action: deploy
-                  kubernetesServiceConnection: 'ask-west'
+                  kubernetesServiceConnection: 'aks-west'
                   namespace: 'default'
                   manifests: |
                     $(Pipeline.Workspace)/manifests/deployment.yml
