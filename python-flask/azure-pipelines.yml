@@ -97,7 +97,7 @@ stages:
     )
 
   jobs:
-    - deployment: 'Deploy East'
+    - deployment: 'Deploy_East'
       pool:
         vmImage: 'ubuntu-latest'
       environment: 'ask-east'
@@ -118,7 +118,7 @@ stages:
                   containers: |
                     maximiano86/devops:$(tag)
 
-    - deployment: 'Deploy West'
+    - deployment: 'Deploy_West'
       pool:
         vmImage: 'ubuntu-latest'
       environment: 'ask-west'
