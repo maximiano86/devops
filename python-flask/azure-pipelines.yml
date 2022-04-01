@@ -53,7 +53,7 @@ stages:
         tags: |
           $(tag)
 
-    - publish: './deployment.yml'
+    - publish: './python-flask/deployment.yml'
       artifact: manifests
 
 # - stage: 'Create_Infra'
